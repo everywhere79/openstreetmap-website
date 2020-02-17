@@ -39,3 +39,17 @@ jobs:
       - sed -e "/idle_in_transaction_session_timeout/d" -e 's/ IMMUTABLE / /' -e "/^--/d" db/structure.sql > db/structure.actual
       - diff -uw db/structure.expected db/structure.actual
       - bundle exec rake test:db
+  - name: "Docker-Compose Configuration"
+    language: minimal
+    services:
+      - docker
+    before_script:
+      - cp config/example.storage.yml config/storage.yml
+      - cp config/docker.database.yml config/database.yml
+      - touch config/settings.local.yml
+    script:
+      - docker-compose build
+      - docker-compose up -d
+      - docker-compose run --rm web rake db:migrate
+      - curl -siL http://127.0.0.1:3000 | egrep '^HTTP/1.1 200 OK'
+      - curl -siL http://127.0.0.1:3000 | grep 'OpenStreetMap is the free wiki world map'
