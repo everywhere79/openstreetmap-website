@@ -51,7 +51,7 @@ jobs:
       - docker-compose build
       - docker-compose up -d
       - docker-compose run --rm web rake db:migrate
-      - docker-compose run --rm web psql -f docker/null-island.osm.pgsql postgres://openstreetmap@db/openstreetmap
+      - docker-compose run --rm web osmosis --rx docker/null-island.osm.xml --wd host=db database=openstreetmap user=openstreetmap validateSchemaVersion=no
       - curl -siL http://127.0.0.1:3000 | egrep '^HTTP/1.1 200 OK'
       - curl -siL http://127.0.0.1:3000 | grep 'OpenStreetMap is the free wiki world map'
       - curl -siL http://127.0.0.1:3000/api/0.6/node/1 | grep 'Null Island'
